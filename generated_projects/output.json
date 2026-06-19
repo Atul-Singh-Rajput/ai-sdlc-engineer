@@ -1,0 +1,34 @@
+{
+    "Project Name": "Employee Management System",
+    "Project Type": "HR Management",
+    "Entities": [
+        "Employee",
+        "Admin",
+        "Report"
+    ],
+    "Roles": [
+        "Admin"
+    ],
+    "Features": [
+        "Create Employee",
+        "Update Employee",
+        "Generate Reports"
+    ],
+    "API Endpoints": [
+        {
+            "Endpoint": "/employees",
+            "Method": "POST",
+            "Description": "Create Employee"
+        },
+        {
+            "Endpoint": "/employees/{id}",
+            "Method": "PUT",
+            "Description": "Update Employee"
+        },
+        {
+            "Endpoint": "/reports",
+            "Method": "GET",
+            "Description": "Generate Reports"
+        }
+    ]
+}

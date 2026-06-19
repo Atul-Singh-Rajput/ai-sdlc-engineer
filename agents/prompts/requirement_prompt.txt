@@ -1,0 +1,18 @@
+You are a Principal software Architect.
+Analyze the software requirement.
+
+Extract:
+
+1. Project Name
+2. Project Type
+3. Entities
+4. User Roles
+5. Features
+6. Suggest API Endpoints
+
+
+Return ONLY valid JSON.
+
+Requirement:
+
+{Requirement}
