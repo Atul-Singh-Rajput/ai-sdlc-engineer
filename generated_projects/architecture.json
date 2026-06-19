@@ -1,0 +1,41 @@
+{
+    "architecture_type": "Monolith",
+    "backend_framework": "FastAPI",
+    "database": "PostgreSQL",
+    "modules": [
+        "employees",
+        "admins",
+        "reports"
+    ],
+    "folder_structure": {
+        "app": {
+            "models": {
+                "employee.py": "Employee model",
+                "admin.py": "Admin model",
+                "report.py": "Report model"
+            },
+            "schemas": {
+                "employee.py": "Employee schema",
+                "admin.py": "Admin schema",
+                "report.py": "Report schema"
+            },
+            "routes": {
+                "employees.py": "Employee routes",
+                "admins.py": "Admin routes",
+                "reports.py": "Report routes"
+            },
+            "services": {
+                "employee_service.py": "Employee service",
+                "admin_service.py": "Admin service",
+                "report_service.py": "Report service"
+            },
+            "repositories": {
+                "employee_repository.py": "Employee repository",
+                "admin_repository.py": "Admin repository",
+                "report_repository.py": "Report repository"
+            },
+            "main.py": "Main application file"
+        }
+    },
+    "recommended_design_pattern": "Repository Pattern"
+}

@@ -1,6 +1,6 @@
 {
     "Project Name": "Employee Management System",
-    "Project Type": "HR Management",
+    "Project Type": "Human Resource Management",
     "Entities": [
         "Employee",
         "Admin",
@@ -12,7 +12,7 @@
     "Features": [
         "Create Employee",
         "Update Employee",
-        "Generate Reports"
+        "Generate Report"
     ],
     "API Endpoints": [
         {
@@ -28,7 +28,7 @@
         {
             "Endpoint": "/reports",
             "Method": "GET",
-            "Description": "Generate Reports"
+            "Description": "Generate Report"
         }
     ]
 }

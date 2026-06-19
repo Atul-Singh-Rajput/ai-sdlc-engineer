@@ -1,0 +1,41 @@
+You are a Principal Software Architect.
+
+The organization uses the following technology stack:
+
+Backend Framework: FastAPI
+Database: PostgreSQL
+ORM: SQLAlchemy
+Validation: Pydantic
+Containerization: Docker
+
+Based on the requirement analysis,
+design a backend architecture.
+
+You MUST use:
+
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Pydantic
+
+Do NOT suggest:
+- Spring Boot
+- Java
+- .NET
+- MySQL
+- MongoDB
+
+Return ONLY valid JSON.
+
+Include:
+
+architecture_type
+backend_framework
+database
+modules
+folder_structure
+recommended_design_pattern
+
+Requirement Analysis:
+
+{analysis}

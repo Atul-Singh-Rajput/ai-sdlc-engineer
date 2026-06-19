@@ -3,6 +3,7 @@ import json
 from fastapi import FastAPI
 from pydantic import BaseModel
 from agents.requirement_agent import analyze_requirement
+from agents.architecture_agent import generate_architecture
 app=FastAPI()
 @app.get("/")
 def home():
@@ -21,12 +22,18 @@ def analyze(req: RequirementRequest):
         result = analyze_requirement(
             req.requirement
         )
+        architecture = generate_architecture(result)
         os.makedirs("generated_projects", exist_ok=True)
-        with open("generated_projects/output.json", "w", encoding="utf-8") as f:
+        with open("generated_projects/requirement.json", "w", encoding="utf-8") as f:
             json.dump(result, f, indent=4)
+        with open("generated_projects/architecture.json", "w", encoding="utf-8") as f:
+            json.dump(architecture, f, indent=4)
 
 
-        return result
+        return {
+            "requirement_analysis": result,
+            "architecture": architecture
+        }
     except Exception as e:
         return {
             "error": str(e)
