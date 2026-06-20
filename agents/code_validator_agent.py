@@ -20,13 +20,16 @@ def get_repository_methods(filepath):
 
         if isinstance(
             node,
-            ast.FunctionDef
+            (
+            ast.FunctionDef,
+            ast.AsyncFunctionDef
+            )
         ):
 
             methods.append(
                 node.name
             )
-
+    print("Repository Methods:", methods)
     return methods
 
 def get_route_method_calls(filepath):

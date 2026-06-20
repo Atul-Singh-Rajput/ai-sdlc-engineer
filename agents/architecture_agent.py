@@ -58,8 +58,35 @@ Requirement Analysis:
 {json.dumps(analysis, indent=2)}
 """
     response=llm.invoke(prompt)
-    content=response.content
-    content=content.replace("```json", "")
-    content=content.replace("```", "")
-    content=content.strip()
+    content = response.content
+
+    content = content.replace(
+        "```json",
+        ""
+    )
+
+    content = content.replace(
+        "```",
+        ""
+    )
+
+    content = content.strip()
+
+    print("\n========== ARCHITECTURE RESPONSE ==========\n")
+    print(content)
+    print("\n========== END RESPONSE ==========\n")
+
+    # Extract only JSON portion
+
+    start = content.find("{")
+    end = content.rfind("}")
+
+    if start == -1 or end == -1:
+
+        raise Exception(
+            "No JSON found in architecture response"
+        )
+
+    content = content[start:end + 1]
+
     return json.loads(content)

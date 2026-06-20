@@ -1,11 +1,14 @@
 from pydantic import BaseModel
+from datetime import date
 from typing import Optional
 
 class Employee(BaseModel):
     id: Optional[int]
-    name: str
+    first_name: str
+    last_name: str
     email: str
-    department: str
+    date_of_birth: date
+    department_id: int
 
     class Config:
         orm_mode = True
@@ -14,6 +17,8 @@ class EmployeeCreate(Employee):
     pass
 
 class EmployeeUpdate(BaseModel):
-    name: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
     email: Optional[str]
-    department: Optional[str]
+    date_of_birth: Optional[date]
+    department_id: Optional[int]

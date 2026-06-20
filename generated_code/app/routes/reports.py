@@ -1,25 +1,29 @@
 from fastapi import APIRouter, Depends
-from generated_code.app.repositories.report_repository import ReportRepository
-from generated_code.app.schemas.report import Report
+from generated_code.app.repositories import EmployeeRepository
+from generated_code.app.models import Employee
+from generated_code.app.schemas import Employee as EmployeeSchema
 
-router = APIRouter(prefix="/reports", tags=["reports"])
+router = APIRouter(
+    prefix="/reports",
+    tags=["reports"]
+)
 
-@router.get("/")
-async def get_all_reports(report_repository: ReportRepository = Depends()):
-    return report_repository.get_all()
+@router.get("/employees")
+async def get_all_employees(employee_repository: EmployeeRepository = Depends()):
+    return await employee_repository.get_all()
 
-@router.get("/{report_id}")
-async def get_report_by_id(report_id: int, report_repository: ReportRepository = Depends()):
-    return report_repository.get_by_id(report_id)
+@router.get("/employees/{employee_id}")
+async def get_employee_by_id(employee_id: int, employee_repository: EmployeeRepository = Depends()):
+    return await employee_repository.get_by_id(employee_id)
 
-@router.post("/")
-async def create_report(report: Report, report_repository: ReportRepository = Depends()):
-    return report_repository.create(report)
+@router.post("/employees")
+async def create_employee(employee: EmployeeSchema, employee_repository: EmployeeRepository = Depends()):
+    return await employee_repository.create(employee.dict())
 
-@router.put("/{report_id}")
-async def update_report(report_id: int, report: Report, report_repository: ReportRepository = Depends()):
-    return report_repository.update(report_id, report)
+@router.put("/employees/{employee_id}")
+async def update_employee(employee_id: int, employee: EmployeeSchema, employee_repository: EmployeeRepository = Depends()):
+    return await employee_repository.update(employee_id, employee.dict())
 
-@router.delete("/{report_id}")
-async def delete_report(report_id: int, report_repository: ReportRepository = Depends()):
-    return report_repository.delete(report_id)
+@router.delete("/employees/{employee_id}")
+async def delete_employee(employee_id: int, employee_repository: EmployeeRepository = Depends()):
+    return await employee_repository.delete(employee_id)

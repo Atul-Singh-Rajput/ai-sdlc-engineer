@@ -19,4 +19,4 @@ def generated_project_spec(architecture):
         "delete"
       ]
      }
-    return spec
+  return spec

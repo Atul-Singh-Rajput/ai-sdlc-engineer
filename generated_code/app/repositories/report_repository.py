@@ -1,41 +1,38 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 from generated_code.app.models import Report
-from generated_code.app.database import engine
+from generated_code.app.database import SessionLocal
+from typing import List
 
 class ReportRepository:
-    def __init__(self):
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
+    def __init__(self, db: SessionLocal):
+        self.db = db
 
-    def get_all(self):
-        return self.session.query(Report).all()
+    def get_all(self) -> List[Report]:
+        return self.db.execute(select(Report)).all()
 
-    def get_by_id(self, id: int):
-        return self.session.query(Report).filter(Report.id == id).first()
+    def get_by_id(self, report_id: int) -> Report:
+        return self.db.execute(select(Report).where(Report.id == report_id)).scalar()
 
-    def create(self, report: Report):
-        self.session.add(report)
-        self.session.commit()
-        self.session.refresh(report)
+    def create(self, report: Report) -> Report:
+        self.db.add(report)
+        self.db.commit()
+        self.db.refresh(report)
         return report
 
-    def update(self, id: int, report: Report):
-        existing_report = self.get_by_id(id)
+    def update(self, report_id: int, report: Report) -> Report:
+        existing_report = self.get_by_id(report_id)
         if existing_report:
             existing_report.name = report.name
             existing_report.description = report.description
-            self.session.commit()
-            self.session.refresh(existing_report)
+            self.db.commit()
+            self.db.refresh(existing_report)
             return existing_report
-        else:
-            return None
+        return None
 
-    def delete(self, id: int):
-        report = self.get_by_id(id)
+    def delete(self, report_id: int) -> bool:
+        report = self.get_by_id(report_id)
         if report:
-            self.session.delete(report)
-            self.session.commit()
+            self.db.delete(report)
+            self.db.commit()
             return True
-        else:
-            return False
+        return False
