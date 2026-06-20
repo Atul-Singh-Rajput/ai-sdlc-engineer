@@ -1,6 +1,6 @@
 You are a Senior FastAPI Engineer.
 
-Generate ONLY the Python code for:
+Generate ONLY the Python code or file content for:
 
 {filepath}
 
@@ -8,12 +8,16 @@ Project Architecture:
 
 {architecture}
 
+Project Specification:
+
+{spec}
+
 Rules:
 
-1. Return ONLY Python code.
+1. Return ONLY code or file content.
 2. No markdown.
 3. No explanations.
-4. Valid Python syntax.
+4. Valid syntax.
 
 Special Instructions:
 
@@ -26,10 +30,19 @@ schemas/
 → generate Pydantic schema.
 
 repositories/
-→ generate repository functions.
+→ generate repository class using repository methods defined in Project Specification.
 
 routes/
-→ generate FastAPI APIRouter.
+→ generate FastAPI APIRouter using repository methods defined in Project Specification.
 
-main.py
-→ generate FastAPI application.
+app/main.py
+→ generate FastAPI app and register all routers.
+
+app/database.py
+→ generate SQLAlchemy database configuration.
+
+requirements.txt
+→ generate Python package requirements.
+
+**init**.py
+→ generate empty file.

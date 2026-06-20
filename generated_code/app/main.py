@@ -1,14 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import employees, admins, reports
-from app.database import engine
-from app.models import Base
+from generated_code.app.routes import employees, admins, reports
+from generated_code.app.database import engine
 
 app = FastAPI()
 
 origins = [
-    "http://localhost",
     "http://localhost:8000",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -19,14 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(employees.router)
-app.include_router(admins.router)
-app.include_router(reports.router)
-
-@app.on_event("startup")
-async def startup_event():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+app.include_router(employees.router, prefix="/employees", tags=["employees"])
+app.include_router(admins.router, prefix="/admins", tags=["admins"])
+app.include_router(reports.router, prefix="/reports", tags=["reports"])
 
 @app.get("/")
 def read_root():

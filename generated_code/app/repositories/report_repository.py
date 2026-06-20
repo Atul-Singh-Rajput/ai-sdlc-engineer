@@ -1,48 +1,43 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import report
-from app.schemas import report as schema
+from sqlalchemy.orm import Session
+from app.models.report import Report
+from app.schemas.report import ReportSchema
+from typing import List
 
 class ReportRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: Session):
         self.session = session
 
-    async def get_all_reports(self):
-        query = select(report.Report)
-        result = await self.session.execute(query)
-        return result.scalars().all()
+    def get_all(self) -> List[ReportSchema]:
+        reports = self.session.execute(select(Report)).all()
+        return [ReportSchema.from_orm(report[0]) for report in reports]
 
-    async def get_report_by_id(self, report_id: int):
-        query = select(report.Report).where(report.Report.id == report_id)
-        result = await self.session.execute(query)
-        return result.scalar()
+    def get_by_id(self, report_id: int) -> ReportSchema:
+        report = self.session.get(Report, report_id)
+        return ReportSchema.from_orm(report) if report else None
 
-    async def create_report(self, report_schema: schema.ReportCreate):
-        new_report = report.Report(**report_schema.dict())
+    def create(self, report: ReportSchema) -> ReportSchema:
+        new_report = Report(**report.dict())
         self.session.add(new_report)
-        await self.session.commit()
-        await self.session.refresh(new_report)
-        return new_report
+        self.session.commit()
+        self.session.refresh(new_report)
+        return ReportSchema.from_orm(new_report)
 
-    async def update_report(self, report_id: int, report_schema: schema.ReportUpdate):
-        query = select(report.Report).where(report.Report.id == report_id)
-        result = await self.session.execute(query)
-        existing_report = result.scalar()
+    def update(self, report_id: int, report: ReportSchema) -> ReportSchema:
+        existing_report = self.get_by_id(report_id)
         if existing_report:
-            existing_report.title = report_schema.title
-            existing_report.description = report_schema.description
-            self.session.add(existing_report)
-            await self.session.commit()
-            await self.session.refresh(existing_report)
-            return existing_report
+            existing_report_dict = existing_report.dict()
+            existing_report_dict.update(report.dict())
+            updated_report = Report(**existing_report_dict)
+            self.session.merge(updated_report)
+            self.session.commit()
+            return ReportSchema.from_orm(updated_report)
         return None
 
-    async def delete_report(self, report_id: int):
-        query = select(report.Report).where(report.Report.id == report_id)
-        result = await self.session.execute(query)
-        existing_report = result.scalar()
-        if existing_report:
-            await self.session.delete(existing_report)
-            await self.session.commit()
+    def delete(self, report_id: int) -> bool:
+        report = self.session.get(Report, report_id)
+        if report:
+            self.session.delete(report)
+            self.session.commit()
             return True
         return False

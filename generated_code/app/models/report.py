@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.database import Base
+from database import Base
 
 class Report(Base):
     __tablename__ = "reports"
@@ -10,7 +10,7 @@ class Report(Base):
     title = Column(String, index=True)
     content = Column(String, index=True)
     created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, onupdate=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     employee_id = Column(Integer, ForeignKey("employees.id"))
     employee = relationship("Employee", back_populates="reports")
 

@@ -1,41 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app import models, schemas
-from app.repositories import employee_repository
-from typing import List
+from fastapi.responses import JSONResponse
+from fastapi import status
+from app.repositories.employee_repository import EmployeeRepository
+from app.schemas.employee import Employee
+from app.services.employee_service import EmployeeService
 
-router = APIRouter(tags=["employees"])
+router = APIRouter(
+    prefix="/employees",
+    tags=["employees"]
+)
 
-@router.get("/employees/", response_model=List[schemas.Employee])
-def read_employees(db: Session = Depends(employee_repository.get_db)):
-    employees = employee_repository.get_employees(db)
-    return employees
+@router.get("/")
+async def get_all_employees(employee_repository: EmployeeRepository = Depends()):
+    employees = await employee_repository.get_all()
+    return JSONResponse(content=[employee.dict() for employee in employees], status_code=status.HTTP_200_OK)
 
-@router.get("/employees/{employee_id}", response_model=schemas.Employee)
-def read_employee(employee_id: int, db: Session = Depends(employee_repository.get_db)):
-    db_employee = employee_repository.get_employee(db, employee_id=employee_id)
-    if db_employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return db_employee
+@router.get("/{employee_id}")
+async def get_employee_by_id(employee_id: int, employee_repository: EmployeeRepository = Depends()):
+    employee = await employee_repository.get_by_id(employee_id)
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    return JSONResponse(content=employee.dict(), status_code=status.HTTP_200_OK)
 
-@router.post("/employees/", response_model=schemas.Employee)
-def create_employee(employee: schemas.EmployeeCreate, db: Session = Depends(employee_repository.get_db)):
-    db_employee = employee_repository.get_employee_by_email(db, email=employee.email)
-    if db_employee:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return employee_repository.create_employee(db=db, employee=employee)
+@router.post("/")
+async def create_employee(employee: Employee, employee_repository: EmployeeRepository = Depends()):
+    new_employee = await employee_repository.create(employee)
+    return JSONResponse(content=new_employee.dict(), status_code=status.HTTP_201_CREATED)
 
-@router.put("/employees/{employee_id}", response_model=schemas.Employee)
-def update_employee(employee_id: int, employee: schemas.EmployeeUpdate, db: Session = Depends(employee_repository.get_db)):
-    db_employee = employee_repository.get_employee(db, employee_id=employee_id)
-    if db_employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return employee_repository.update_employee(db=db, employee_id=employee_id, employee=employee)
+@router.put("/{employee_id}")
+async def update_employee(employee_id: int, employee: Employee, employee_repository: EmployeeRepository = Depends()):
+    updated_employee = await employee_repository.update(employee_id, employee)
+    if not updated_employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    return JSONResponse(content=updated_employee.dict(), status_code=status.HTTP_200_OK)
 
-@router.delete("/employees/{employee_id}")
-def delete_employee(employee_id: int, db: Session = Depends(employee_repository.get_db)):
-    db_employee = employee_repository.get_employee(db, employee_id=employee_id)
-    if db_employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    employee_repository.delete_employee(db, employee_id=employee_id)
-    return {"message": "Employee deleted successfully"}
+@router.delete("/{employee_id}")
+async def delete_employee(employee_id: int, employee_repository: EmployeeRepository = Depends()):
+    deleted_employee = await employee_repository.delete(employee_id)
+    if not deleted_employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    return JSONResponse(content={"message": "Employee deleted successfully"}, status_code=status.HTTP_200_OK)

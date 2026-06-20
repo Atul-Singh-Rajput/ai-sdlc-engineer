@@ -5,12 +5,15 @@ from typing import Optional
 class AdminBase(BaseModel):
     username: str
     email: str
-
-class AdminCreate(AdminBase):
     password: str
 
-class AdminUpdate(AdminBase):
-    password: Optional[str]
+class AdminCreate(AdminBase):
+    pass
+
+class AdminUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 class Admin(AdminBase):
     id: int

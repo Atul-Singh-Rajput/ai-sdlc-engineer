@@ -1,53 +1,44 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi.requests import Request
+from fastapi import status
 from app.repositories import report_repository
-from app.schemas import report as report_schema
-from app.models import report as report_model
-from sqlalchemy.orm import Session
-from typing import List
+from app.schemas import report
+from app.services import report_service
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/reports",
+    tags=["reports"],
+)
 
-@router.get("/reports/", response_model=List[report_schema.Report])
-async def read_reports(
-    db: Session = Depends(report_repository.get_db)
-):
-    reports = report_repository.get_reports(db)
-    return reports
+@router.get("/")
+async def get_all_reports(report_repo: report_repository.ReportRepository = Depends()):
+    reports = await report_repo.get_all()
+    return JSONResponse(content=[report.Report.from_orm(r).dict() for r in reports], status_code=status.HTTP_200_OK)
 
-@router.get("/reports/{report_id}", response_model=report_schema.Report)
-async def read_report(
-    report_id: int,
-    db: Session = Depends(report_repository.get_db)
-):
-    report = report_repository.get_report(db, report_id)
-    if report is None:
-        raise HTTPException(status_code=404, detail="Report not found")
-    return report
+@router.get("/{report_id}")
+async def get_report_by_id(report_id: int, report_repo: report_repository.ReportRepository = Depends()):
+    report_obj = await report_repo.get_by_id(report_id)
+    if report_obj is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+    return JSONResponse(content=report.Report.from_orm(report_obj).dict(), status_code=status.HTTP_200_OK)
 
-@router.post("/reports/", response_model=report_schema.Report)
-async def create_report(
-    report: report_schema.ReportCreate,
-    db: Session = Depends(report_repository.get_db)
-):
-    return report_repository.create_report(db, report)
+@router.post("/")
+async def create_report(report_data: report.ReportCreate, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
+    report_obj = await report_service.create_report(report_data)
+    return JSONResponse(content=report.Report.from_orm(report_obj).dict(), status_code=status.HTTP_201_CREATED)
 
-@router.put("/reports/{report_id}", response_model=report_schema.Report)
-async def update_report(
-    report_id: int,
-    report: report_schema.ReportUpdate,
-    db: Session = Depends(report_repository.get_db)
-):
-    updated_report = report_repository.update_report(db, report_id, report)
-    if updated_report is None:
-        raise HTTPException(status_code=404, detail="Report not found")
-    return updated_report
+@router.put("/{report_id}")
+async def update_report(report_id: int, report_data: report.ReportUpdate, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
+    report_obj = await report_repo.get_by_id(report_id)
+    if report_obj is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+    updated_report = await report_service.update_report(report_id, report_data)
+    return JSONResponse(content=report.Report.from_orm(updated_report).dict(), status_code=status.HTTP_200_OK)
 
-@router.delete("/reports/{report_id}")
-async def delete_report(
-    report_id: int,
-    db: Session = Depends(report_repository.get_db)
-):
-    report_repository.delete_report(db, report_id)
-    return JSONResponse(status_code=200, content={"message": "Report deleted successfully"})
+@router.delete("/{report_id}")
+async def delete_report(report_id: int, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
+    report_obj = await report_repo.get_by_id(report_id)
+    if report_obj is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+    await report_service.delete_report(report_id)
+    return JSONResponse(content={"message": "Report deleted successfully"}, status_code=status.HTTP_200_OK)

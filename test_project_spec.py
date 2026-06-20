@@ -1,9 +1,5 @@
 import json
 
-from agents.file_generator_agent import (
-    generate_file
-)
-
 from agents.project_spec_agent import (
     generated_project_spec
 )
@@ -20,10 +16,9 @@ spec = generated_project_spec(
     architecture
 )
 
-result = generate_file(
-    "requirements.txt",
-    architecture,
-    spec
+print(
+    json.dumps(
+        spec,
+        indent=4
+    )
 )
-
-print(result)

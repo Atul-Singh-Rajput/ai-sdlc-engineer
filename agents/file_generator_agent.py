@@ -11,7 +11,7 @@ llm=ChatGroq(
     api_key=os.getenv("GROQ_API_KEY1")
 )
 
-def generate_file(filepath, architecture):
+def generate_file(filepath, architecture,spec=None):
     with open(
         "agents/prompts/file_generator_prompt.txt",
         "r",
@@ -26,6 +26,13 @@ def generate_file(filepath, architecture):
         "{architecture}",
         json.dumps(
             architecture,
+            indent=2
+        )
+    )
+    prompt=prompt.replace(
+        "{spec}",
+        json.dumps(
+            spec if spec else {},
             indent=2
         )
     )

@@ -1,45 +1,52 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from app import schemas, models, repositories
-from app.dependencies import get_db
+from app import database
+from app.repositories import admin_repository
+from app.schemas import admin as admin_schema
+from app.services import admin_service
 
 router = APIRouter(
     prefix="/admins",
     tags=["admins"],
-    responses={404: {"description": "Not found"}},
 )
 
-@router.get("/")
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.get("/", response_model=list[admin_schema.Admin])
 def read_admins(db: Session = Depends(get_db)):
-    admins = repositories.admin_repository.get_all_admins(db)
+    admins = admin_repository.get_all(db)
     return admins
 
-@router.get("/{admin_id}")
+@router.get("/{admin_id}", response_model=admin_schema.Admin)
 def read_admin(admin_id: int, db: Session = Depends(get_db)):
-    db_admin = repositories.admin_repository.get_admin(db, admin_id)
+    db_admin = admin_repository.get_by_id(db, admin_id)
     if db_admin is None:
         raise HTTPException(status_code=404, detail="Admin not found")
     return db_admin
 
-@router.post("/")
-def create_admin(admin: schemas.AdminCreate, db: Session = Depends(get_db)):
-    db_admin = repositories.admin_repository.get_admin_by_email(db, admin.email)
+@router.post("/", response_model=admin_schema.Admin)
+def create_admin(admin: admin_schema.AdminCreate, db: Session = Depends(get_db)):
+    db_admin = admin_repository.get_by_email(db, admin.email)
     if db_admin:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return repositories.admin_repository.create_admin(db, admin)
+    return admin_repository.create(db, admin)
 
-@router.put("/{admin_id}")
-def update_admin(admin_id: int, admin: schemas.AdminUpdate, db: Session = Depends(get_db)):
-    db_admin = repositories.admin_repository.get_admin(db, admin_id)
+@router.put("/{admin_id}", response_model=admin_schema.Admin)
+def update_admin(admin_id: int, admin: admin_schema.AdminUpdate, db: Session = Depends(get_db)):
+    db_admin = admin_repository.get_by_id(db, admin_id)
     if db_admin is None:
         raise HTTPException(status_code=404, detail="Admin not found")
-    return repositories.admin_repository.update_admin(db, admin_id, admin)
+    return admin_repository.update(db, admin_id, admin)
 
 @router.delete("/{admin_id}")
 def delete_admin(admin_id: int, db: Session = Depends(get_db)):
-    db_admin = repositories.admin_repository.get_admin(db, admin_id)
+    db_admin = admin_repository.get_by_id(db, admin_id)
     if db_admin is None:
         raise HTTPException(status_code=404, detail="Admin not found")
-    repositories.admin_repository.delete_admin(db, admin_id)
-    return JSONResponse(status_code=200, content={"message": "Admin deleted successfully"})
+    admin_repository.delete(db, admin_id)
+    return {"message": "Admin deleted successfully"}

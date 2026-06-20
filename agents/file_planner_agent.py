@@ -7,7 +7,22 @@ def plan_files(architecture):
     )
 
     files = [
-        "app/main.py"
+
+    "app/main.py",
+
+    "app/database.py",
+
+    "requirements.txt",
+
+    "app/__init__.py",
+
+    "app/routes/__init__.py",
+
+    "app/models/__init__.py",
+
+    "app/schemas/__init__.py",
+
+    "app/repositories/__init__.py"
     ]
 
     for module in modules:

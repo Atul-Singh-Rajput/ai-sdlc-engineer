@@ -1,24 +1,24 @@
 from sqlalchemy.orm import Session
-from app.models import Admin
-from app.schemas import AdminCreate, AdminUpdate
-from typing import Optional, List
+from app.models.admin import Admin
+from app.schemas.admin import AdminCreate, AdminUpdate
+from typing import List, Optional
 
 class AdminRepository:
-    def get_admin(self, db: Session, admin_id: int):
+    def get_all(self, db: Session) -> List[Admin]:
+        return db.query(Admin).all()
+
+    def get_by_id(self, db: Session, admin_id: int) -> Optional[Admin]:
         return db.query(Admin).filter(Admin.id == admin_id).first()
 
-    def get_admins(self, db: Session, skip: int = 0, limit: int = 100):
-        return db.query(Admin).offset(skip).limit(limit).all()
-
-    def create_admin(self, db: Session, admin: AdminCreate):
+    def create(self, db: Session, admin: AdminCreate) -> Admin:
         db_admin = Admin(**admin.dict())
         db.add(db_admin)
         db.commit()
         db.refresh(db_admin)
         return db_admin
 
-    def update_admin(self, db: Session, admin_id: int, admin: AdminUpdate):
-        db_admin = self.get_admin(db, admin_id)
+    def update(self, db: Session, admin_id: int, admin: AdminUpdate) -> Optional[Admin]:
+        db_admin = self.get_by_id(db, admin_id)
         if db_admin:
             for key, value in admin.dict(exclude_unset=True).items():
                 setattr(db_admin, key, value)
@@ -26,8 +26,8 @@ class AdminRepository:
             db.refresh(db_admin)
         return db_admin
 
-    def delete_admin(self, db: Session, admin_id: int):
-        db_admin = self.get_admin(db, admin_id)
+    def delete(self, db: Session, admin_id: int) -> Optional[Admin]:
+        db_admin = self.get_by_id(db, admin_id)
         if db_admin:
             db.delete(db_admin)
             db.commit()
