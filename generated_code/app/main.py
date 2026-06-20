@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import employees, admins, reports
-from app.database import database
+from app.database import engine
+from app.models import Base
 
 app = FastAPI()
 
-app.include_router(employees.router)
-app.include_router(admins.router)
-app.include_router(reports.router)
-
-origins = ["*"]
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,10 +19,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(employees.router)
+app.include_router(admins.router)
+app.include_router(reports.router)
+
 @app.on_event("startup")
 async def startup_event():
-    await database.connect()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    await database.disconnect()
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the API"}

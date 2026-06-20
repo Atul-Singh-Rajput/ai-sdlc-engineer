@@ -1,6 +1,6 @@
 You are a Senior FastAPI Engineer.
 
-Generate ONLY the code for this file:
+Generate ONLY the Python code for:
 
 {filepath}
 
@@ -13,4 +13,23 @@ Rules:
 1. Return ONLY Python code.
 2. No markdown.
 3. No explanations.
-4. Valid FastAPI code.
+4. Valid Python syntax.
+
+Special Instructions:
+
+If filepath contains:
+
+models/
+→ generate SQLAlchemy model.
+
+schemas/
+→ generate Pydantic schema.
+
+repositories/
+→ generate repository functions.
+
+routes/
+→ generate FastAPI APIRouter.
+
+main.py
+→ generate FastAPI application.

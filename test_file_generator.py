@@ -9,7 +9,7 @@ with open(
 
     architecture = json.load(f)
 result=generate_file(
-    "app/models/employee.py",
+    "app/repositories/employee_repository.py",
     architecture
 )
 
