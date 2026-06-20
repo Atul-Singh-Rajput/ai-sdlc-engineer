@@ -1,0 +1,16 @@
+You are a Senior FastAPI Engineer.
+
+Generate ONLY the code for this file:
+
+{filepath}
+
+Project Architecture:
+
+{architecture}
+
+Rules:
+
+1. Return ONLY Python code.
+2. No markdown.
+3. No explanations.
+4. Valid FastAPI code.
