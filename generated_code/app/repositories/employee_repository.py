@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from app.models.employee import Employee
-from app.schemas.employee import Employee as EmployeeSchema
+from generated_code.app.models.employee import Employee
+from generated_code.app.schemas.employee import Employee as EmployeeSchema
 
 class EmployeeRepository:
     def __init__(self, session: Session):

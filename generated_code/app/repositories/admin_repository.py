@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models.admin import Admin
-from app.schemas.admin import AdminCreate, AdminUpdate
+from generated_code.app.models.admin import Admin
+from generated_code.app.schemas.admin import AdminCreate, AdminUpdate
 from typing import List, Optional
 
 class AdminRepository:

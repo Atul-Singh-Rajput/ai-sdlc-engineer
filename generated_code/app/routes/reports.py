@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import status
-from app.repositories import report_repository
-from app.schemas import report
-from app.services import report_service
+from generated_code.app.repositories import report_repository
+from generated_code.app.schemas import report
+from generated_code.app.services import report_service
 
 router = APIRouter(
     prefix="/reports",

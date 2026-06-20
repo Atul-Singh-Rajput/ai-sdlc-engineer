@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from app.models.report import Report
-from app.schemas.report import ReportSchema
+from generated_code.app.models.report import Report
+from generated_code.app.schemas.report import ReportSchema
 from typing import List
 
 class ReportRepository:

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import status
-from app.repositories.employee_repository import EmployeeRepository
-from app.schemas.employee import Employee
-from app.services.employee_service import EmployeeService
+from generated_code.app.repositories.employee_repository import EmployeeRepository
+from generated_code.app.schemas.employee import Employee
+from generated_code.app.services.employee_service import EmployeeService
 
 router = APIRouter(
     prefix="/employees",
