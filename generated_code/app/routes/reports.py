@@ -1,44 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi import status
-from generated_code.app.repositories import report_repository
-from generated_code.app.schemas import report
-from generated_code.app.services import report_service
+from fastapi import APIRouter, Depends
+from generated_code.app.repositories.report_repository import ReportRepository
+from generated_code.app.schemas.report import Report
 
-router = APIRouter(
-    prefix="/reports",
-    tags=["reports"],
-)
+router = APIRouter(prefix="/reports", tags=["reports"])
 
 @router.get("/")
-async def get_all_reports(report_repo: report_repository.ReportRepository = Depends()):
-    reports = await report_repo.get_all()
-    return JSONResponse(content=[report.Report.from_orm(r).dict() for r in reports], status_code=status.HTTP_200_OK)
+async def get_all_reports(report_repository: ReportRepository = Depends()):
+    return report_repository.get_all()
 
 @router.get("/{report_id}")
-async def get_report_by_id(report_id: int, report_repo: report_repository.ReportRepository = Depends()):
-    report_obj = await report_repo.get_by_id(report_id)
-    if report_obj is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
-    return JSONResponse(content=report.Report.from_orm(report_obj).dict(), status_code=status.HTTP_200_OK)
+async def get_report_by_id(report_id: int, report_repository: ReportRepository = Depends()):
+    return report_repository.get_by_id(report_id)
 
 @router.post("/")
-async def create_report(report_data: report.ReportCreate, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
-    report_obj = await report_service.create_report(report_data)
-    return JSONResponse(content=report.Report.from_orm(report_obj).dict(), status_code=status.HTTP_201_CREATED)
+async def create_report(report: Report, report_repository: ReportRepository = Depends()):
+    return report_repository.create(report)
 
 @router.put("/{report_id}")
-async def update_report(report_id: int, report_data: report.ReportUpdate, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
-    report_obj = await report_repo.get_by_id(report_id)
-    if report_obj is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
-    updated_report = await report_service.update_report(report_id, report_data)
-    return JSONResponse(content=report.Report.from_orm(updated_report).dict(), status_code=status.HTTP_200_OK)
+async def update_report(report_id: int, report: Report, report_repository: ReportRepository = Depends()):
+    return report_repository.update(report_id, report)
 
 @router.delete("/{report_id}")
-async def delete_report(report_id: int, report_repo: report_repository.ReportRepository = Depends(), report_service: report_service.ReportService = Depends()):
-    report_obj = await report_repo.get_by_id(report_id)
-    if report_obj is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
-    await report_service.delete_report(report_id)
-    return JSONResponse(content={"message": "Report deleted successfully"}, status_code=status.HTTP_200_OK)
+async def delete_report(report_id: int, report_repository: ReportRepository = Depends()):
+    return report_repository.delete(report_id)

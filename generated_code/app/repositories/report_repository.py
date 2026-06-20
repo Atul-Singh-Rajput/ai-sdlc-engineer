@@ -1,43 +1,41 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-from generated_code.app.models.report import Report
-from generated_code.app.schemas.report import ReportSchema
-from typing import List
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from generated_code.app.models import Report
+from generated_code.app.database import engine
 
 class ReportRepository:
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self):
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
 
-    def get_all(self) -> List[ReportSchema]:
-        reports = self.session.execute(select(Report)).all()
-        return [ReportSchema.from_orm(report[0]) for report in reports]
+    def get_all(self):
+        return self.session.query(Report).all()
 
-    def get_by_id(self, report_id: int) -> ReportSchema:
-        report = self.session.get(Report, report_id)
-        return ReportSchema.from_orm(report) if report else None
+    def get_by_id(self, id: int):
+        return self.session.query(Report).filter(Report.id == id).first()
 
-    def create(self, report: ReportSchema) -> ReportSchema:
-        new_report = Report(**report.dict())
-        self.session.add(new_report)
+    def create(self, report: Report):
+        self.session.add(report)
         self.session.commit()
-        self.session.refresh(new_report)
-        return ReportSchema.from_orm(new_report)
+        self.session.refresh(report)
+        return report
 
-    def update(self, report_id: int, report: ReportSchema) -> ReportSchema:
-        existing_report = self.get_by_id(report_id)
+    def update(self, id: int, report: Report):
+        existing_report = self.get_by_id(id)
         if existing_report:
-            existing_report_dict = existing_report.dict()
-            existing_report_dict.update(report.dict())
-            updated_report = Report(**existing_report_dict)
-            self.session.merge(updated_report)
+            existing_report.name = report.name
+            existing_report.description = report.description
             self.session.commit()
-            return ReportSchema.from_orm(updated_report)
-        return None
+            self.session.refresh(existing_report)
+            return existing_report
+        else:
+            return None
 
-    def delete(self, report_id: int) -> bool:
-        report = self.session.get(Report, report_id)
+    def delete(self, id: int):
+        report = self.get_by_id(id)
         if report:
             self.session.delete(report)
             self.session.commit()
             return True
-        return False
+        else:
+            return False

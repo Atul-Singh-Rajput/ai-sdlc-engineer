@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 
 class AdminBase(BaseModel):
     username: str
@@ -11,9 +10,9 @@ class AdminCreate(AdminBase):
     pass
 
 class AdminUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
+    username: str | None = None
+    email: str | None = None
+    password: str | None = None
 
 class Admin(AdminBase):
     id: int

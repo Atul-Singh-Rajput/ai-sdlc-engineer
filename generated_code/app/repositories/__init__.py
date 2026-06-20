@@ -1,3 +1,3 @@
-from .employee_repository import EmployeeRepository
-from .admin_repository import AdminRepository
-from .report_repository import ReportRepository
+from generated_code.app.repositories.employee_repository import EmployeeRepository
+from generated_code.app.repositories.admin_repository import AdminRepository
+from generated_code.app.repositories.report_repository import ReportRepository

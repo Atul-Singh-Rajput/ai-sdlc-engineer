@@ -21,7 +21,7 @@ spec = generated_project_spec(
 )
 
 result = generate_file(
-    "requirements.txt",
+    "app/routes/employees.py",
     architecture,
     spec
 )

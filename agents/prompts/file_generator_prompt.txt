@@ -33,7 +33,14 @@ repositories/
 → generate repository class using repository methods defined in Project Specification.
 
 routes/
-→ generate FastAPI APIRouter using repository methods defined in Project Specification.
+→ generate FastAPI APIRouter.
+
+IMPORTANT:
+- Use ONLY repository layer.
+- Do NOT create service layer.
+- Do NOT import app.services.
+- Repository is the business layer.
+- Use methods from repository defined in Project Specification.
 
 app/main.py
 → generate FastAPI app and register all routers.

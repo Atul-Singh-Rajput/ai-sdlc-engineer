@@ -10,8 +10,8 @@ class ReportCreate(ReportBase):
     pass
 
 class ReportUpdate(ReportBase):
-    title: Optional[str]
-    description: Optional[str]
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 class Report(ReportBase):
     id: int

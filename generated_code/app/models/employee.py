@@ -12,6 +12,3 @@ class Employee(Base):
     email = Column(String, unique=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return f'Employee(id={self.id}, name={self.name}, email={self.email})'

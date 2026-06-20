@@ -1,34 +1,37 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-from generated_code.app.models.admin import Admin
-from generated_code.app.schemas.admin import AdminCreate, AdminUpdate
-from typing import List, Optional
+from generated_code.app.models import admin
+from typing import List
 
 class AdminRepository:
-    def get_all(self, db: Session) -> List[Admin]:
-        return db.query(Admin).all()
+    def __init__(self, session: Session):
+        self.session = session
 
-    def get_by_id(self, db: Session, admin_id: int) -> Optional[Admin]:
-        return db.query(Admin).filter(Admin.id == admin_id).first()
+    def get_all(self) -> List[admin.Admin]:
+        return self.session.execute(select(admin.Admin)).scalars().all()
 
-    def create(self, db: Session, admin: AdminCreate) -> Admin:
-        db_admin = Admin(**admin.dict())
-        db.add(db_admin)
-        db.commit()
-        db.refresh(db_admin)
-        return db_admin
+    def get_by_id(self, id: int) -> admin.Admin:
+        return self.session.get(admin.Admin, id)
 
-    def update(self, db: Session, admin_id: int, admin: AdminUpdate) -> Optional[Admin]:
-        db_admin = self.get_by_id(db, admin_id)
-        if db_admin:
-            for key, value in admin.dict(exclude_unset=True).items():
-                setattr(db_admin, key, value)
-            db.commit()
-            db.refresh(db_admin)
-        return db_admin
+    def create(self, admin_data: dict) -> admin.Admin:
+        new_admin = admin.Admin(**admin_data)
+        self.session.add(new_admin)
+        self.session.commit()
+        self.session.refresh(new_admin)
+        return new_admin
 
-    def delete(self, db: Session, admin_id: int) -> Optional[Admin]:
-        db_admin = self.get_by_id(db, admin_id)
-        if db_admin:
-            db.delete(db_admin)
-            db.commit()
-        return db_admin
+    def update(self, id: int, admin_data: dict) -> admin.Admin:
+        existing_admin = self.get_by_id(id)
+        if existing_admin:
+            for key, value in admin_data.items():
+                setattr(existing_admin, key, value)
+            self.session.commit()
+            self.session.refresh(existing_admin)
+            return existing_admin
+        return None
+
+    def delete(self, id: int) -> None:
+        existing_admin = self.get_by_id(id)
+        if existing_admin:
+            self.session.delete(existing_admin)
+            self.session.commit()
