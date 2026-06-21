@@ -4,35 +4,35 @@ from generated_code.app.database import SessionLocal
 from typing import List
 
 class ReportRepository:
-    def __init__(self, db: SessionLocal):
-        self.db = db
+    def __init__(self, session: SessionLocal):
+        self.session = session
 
     def get_all(self) -> List[Report]:
-        return self.db.execute(select(Report)).all()
+        return self.session.execute(select(Report)).all()
 
-    def get_by_id(self, report_id: int) -> Report:
-        return self.db.execute(select(Report).where(Report.id == report_id)).scalar()
+    def get_by_id(self, id: int) -> Report:
+        return self.session.get(Report, id)
 
     def create(self, report: Report) -> Report:
-        self.db.add(report)
-        self.db.commit()
-        self.db.refresh(report)
+        self.session.add(report)
+        self.session.commit()
+        self.session.refresh(report)
         return report
 
-    def update(self, report_id: int, report: Report) -> Report:
-        existing_report = self.get_by_id(report_id)
+    def update(self, id: int, report: Report) -> Report:
+        existing_report = self.get_by_id(id)
         if existing_report:
             existing_report.name = report.name
-            existing_report.description = report.description
-            self.db.commit()
-            self.db.refresh(existing_report)
+            existing_report.content = report.content
+            self.session.commit()
+            self.session.refresh(existing_report)
             return existing_report
         return None
 
-    def delete(self, report_id: int) -> bool:
-        report = self.get_by_id(report_id)
+    def delete(self, id: int) -> bool:
+        report = self.get_by_id(id)
         if report:
-            self.db.delete(report)
-            self.db.commit()
+            self.session.delete(report)
+            self.session.commit()
             return True
         return False

@@ -1,26 +1,26 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
-
-class UserInDB(User):
-    password: str
-
 class Authentication(BaseModel):
+    id: int
     username: str
     password: str
+    created_at: datetime
+    updated_at: datetime
+
+class AuthenticationCreate(BaseModel):
+    username: str
+    password: str
+
+class AuthenticationUpdate(BaseModel):
+    username: str | None
+    password: str | None
 
 class AuthenticationResponse(BaseModel):
-    token: Token
-    user: User
+    id: int
+    username: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True

@@ -1,8 +1,9 @@
 fastapi
+uvicorn
 sqlalchemy
 psycopg2
-uvicorn
-python-dotenv
 pydantic
+python-dotenv
 passlib
+python-jose
 python-multipart

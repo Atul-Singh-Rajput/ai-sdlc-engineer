@@ -1,36 +1,74 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
 from generated_code.app.models.employee import Employee
-from generated_code.app.schemas.employee import Employee as EmployeeSchema
+from typing import List
 
 class EmployeeRepository:
-    def get_all(self, db: Session):
-        return db.execute(select(Employee)).all()
+    def __init__(self, db_url: str):
+        self.engine = create_engine(db_url)
+        self.Session = sessionmaker(bind=self.engine)
 
-    def get_by_id(self, db: Session, employee_id: int):
-        return db.execute(select(Employee).where(Employee.id == employee_id)).first()
+    def get_all(self) -> List[Employee]:
+        session = self.Session()
+        try:
+            return session.query(Employee).all()
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
 
-    def create(self, db: Session, employee: EmployeeSchema):
-        db_employee = Employee(**employee.dict())
-        db.add(db_employee)
-        db.commit()
-        db.refresh(db_employee)
-        return db_employee
+    def get_by_id(self, id: int) -> Employee:
+        session = self.Session()
+        try:
+            return session.query(Employee).filter_by(id=id).first()
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
 
-    def update(self, db: Session, employee_id: int, employee: EmployeeSchema):
-        db_employee = db.execute(select(Employee).where(Employee.id == employee_id)).first()
-        if db_employee:
-            db_employee[0].name = employee.name
-            db_employee[0].email = employee.email
-            db.commit()
-            db.refresh(db_employee[0])
-            return db_employee[0]
-        return None
+    def create(self, employee: Employee) -> Employee:
+        session = self.Session()
+        try:
+            session.add(employee)
+            session.commit()
+            return employee
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
 
-    def delete(self, db: Session, employee_id: int):
-        db_employee = db.execute(select(Employee).where(Employee.id == employee_id)).first()
-        if db_employee:
-            db.delete(db_employee[0])
-            db.commit()
-            return True
-        return False
+    def update(self, id: int, employee: Employee) -> Employee:
+        session = self.Session()
+        try:
+            existing_employee = session.query(Employee).filter_by(id=id).first()
+            if existing_employee:
+                existing_employee.name = employee.name
+                existing_employee.email = employee.email
+                session.commit()
+                return existing_employee
+            else:
+                raise ValueError("Employee not found")
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
+    def delete(self, id: int) -> None:
+        session = self.Session()
+        try:
+            employee = session.query(Employee).filter_by(id=id).first()
+            if employee:
+                session.delete(employee)
+                session.commit()
+            else:
+                raise ValueError("Employee not found")
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()

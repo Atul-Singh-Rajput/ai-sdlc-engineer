@@ -1,4 +1,2 @@
 from .employee_repository import EmployeeRepository
-from .department_repository import DepartmentRepository
-from .reporting_repository import ReportingRepository
-from .authentication_repository import AuthenticationRepository
+from .report_repository import ReportRepository

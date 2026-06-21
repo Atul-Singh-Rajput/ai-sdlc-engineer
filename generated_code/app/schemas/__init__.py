@@ -1,4 +1,2 @@
-from .employee import Employee
-from .department import Department
-from .reporting import Reporting
-from .authentication import Authentication
+from generated_code.app.schemas.employee_schema import Employee
+from generated_code.app.schemas.report_schema import Report

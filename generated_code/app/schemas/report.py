@@ -1,24 +1,21 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import datetime
 from typing import Optional
 
 class ReportBase(BaseModel):
-    report_name: str
-    report_date: date
-    report_status: str
+    title: str
+    description: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class ReportCreate(ReportBase):
     pass
 
+class ReportUpdate(ReportBase):
+    title: Optional[str] = None
+    description: Optional[str] = None
+
 class Report(ReportBase):
     id: int
-    created_at: date
-    updated_at: date
-
     class Config:
         orm_mode = True
-
-class ReportUpdate(BaseModel):
-    report_name: Optional[str]
-    report_date: Optional[date]
-    report_status: Optional[str]

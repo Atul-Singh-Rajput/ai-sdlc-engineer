@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from agents.requirement_agent import analyze_requirement
 from agents.architecture_agent import generate_architecture
+from agents.orchestrator_agent import run_pipeline
+
 app=FastAPI()
 @app.get("/")
 def home():
@@ -38,3 +40,13 @@ def analyze(req: RequirementRequest):
         return {
             "error": str(e)
         }
+@app.post("/generate-project")
+def generate_project(data: dict):
+
+    requirement = data["requirement"]
+
+    result = run_pipeline(
+        requirement
+    )
+
+    return result

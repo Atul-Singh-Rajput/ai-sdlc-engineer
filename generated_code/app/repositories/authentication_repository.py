@@ -2,50 +2,56 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
-from generated_code.app.config.database import DATABASE_URL
 from sqlalchemy.orm import Session
+from typing import List, Optional
 
-engine = create_engine(DATABASE_URL)
+SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/dbname"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
 class Authentication(Base):
     __tablename__ = "authentications"
-    id = Column(Integer, primary_key=True)
-    username = Column(String)
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
     password = Column(String)
+
+Base.metadata.create_all(bind=engine)
 
 class AuthenticationRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all(self):
+    def get_all(self) -> List[Authentication]:
         return self.session.query(Authentication).all()
 
-    def get_by_id(self, id: int):
+    def get_by_id(self, id: int) -> Optional[Authentication]:
         return self.session.query(Authentication).filter(Authentication.id == id).first()
 
-    def create(self, authentication: dict):
-        new_authentication = Authentication(**authentication)
-        self.session.add(new_authentication)
+    def create(self, username: str, password: str) -> Authentication:
+        db_auth = Authentication(username=username, password=password)
+        self.session.add(db_auth)
         self.session.commit()
-        self.session.refresh(new_authentication)
-        return new_authentication
+        self.session.refresh(db_auth)
+        return db_auth
 
-    def update(self, id: int, authentication: dict):
-        existing_authentication = self.get_by_id(id)
-        if existing_authentication:
-            existing_authentication.username = authentication.get("username")
-            existing_authentication.password = authentication.get("password")
+    def update(self, id: int, username: str, password: str) -> Optional[Authentication]:
+        db_auth = self.get_by_id(id)
+        if db_auth:
+            db_auth.username = username
+            db_auth.password = password
             self.session.commit()
-            self.session.refresh(existing_authentication)
-            return existing_authentication
+            self.session.refresh(db_auth)
+            return db_auth
         return None
 
-    def delete(self, id: int):
-        existing_authentication = self.get_by_id(id)
-        if existing_authentication:
-            self.session.delete(existing_authentication)
+    def delete(self, id: int) -> Optional[Authentication]:
+        db_auth = self.get_by_id(id)
+        if db_auth:
+            self.session.delete(db_auth)
             self.session.commit()
-            return True
-        return False
+            return db_auth
+        return None

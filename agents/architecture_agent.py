@@ -37,25 +37,89 @@ Do NOT use .NET.
 Do NOT use MySQL.
 Do NOT use MongoDB.
 
-Return ONLY valid JSON.
-For small and medium business applications,
-prefer Monolith architecture.
+Return ONLY VALID JSON.
 
-Use Microservices only if explicitly required.
-JSON Format:
+DO NOT write explanations.
+DO NOT write markdown.
+DO NOT write text before JSON.
+DO NOT write text after JSON.
+
+IMPORTANT JSON RULES:
+
+1. Every key must have a value.
+2. Use only JSON objects {{}} and JSON arrays [].
+3. Never generate structures like:
 
 {{
-"architecture_type": "",
-"backend_framework": "FastAPI",
-"database": "PostgreSQL",
-"modules": [],
-"folder_structure": {{}},
-"recommended_design_pattern": ""
+  "employee.py",
+  "department.py"
+}}
+
+This is INVALID.
+
+Use:
+
+{{
+  "models": [
+    "employee.py",
+    "department.py"
+  ]
+}}
+
+OR
+
+{{
+  "models": {{
+    "employee.py": "Employee model",
+    "department.py": "Department model"
+  }}
+}}
+
+4. The response must be parseable by json.loads().
+5. Start response with an opening curly brace.
+6. End response with a closing curly brace.
+
+Return EXACTLY this structure:
+
+{{
+  "architecture_type": "Monolith",
+  "backend_framework": "FastAPI",
+  "database": "PostgreSQL",
+  "modules": [],
+  "folder_structure": {{
+    "app": {{
+      "models": [],
+      "schemas": [],
+      "routes": [],
+      "services": [],
+      "repositories": []
+    }}
+  }},
+  "recommended_design_pattern": ""
 }}
 
 Requirement Analysis:
 
-{json.dumps(analysis, indent=2)}
+{{json.dumps(analysis, indent=2)}}
+The modules MUST be derived from the entities and features in the requirement analysis.
+
+Example:
+
+If entities contain Employee and Report:
+
+modules should contain:
+[
+  "employees",
+  "reports",
+  "authentication"
+]
+
+Do not generate unrelated modules such as:
+users,
+products,
+orders
+
+unless they are explicitly mentioned in the requirement analysis.
 """
     response=llm.invoke(prompt)
     content = response.content
@@ -89,4 +153,10 @@ Requirement Analysis:
 
     content = content[start:end + 1]
 
-    return json.loads(content)
+    try:
+        return json.loads(content)
+
+    except Exception as e:
+        print("\nJSON PARSE FAILED\n")
+        print(content)
+        raise e

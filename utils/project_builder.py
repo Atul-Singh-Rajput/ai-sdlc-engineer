@@ -1,5 +1,5 @@
 import os
-
+import shutil
 from agents.file_planner_agent import (
     plan_files
 )
@@ -15,7 +15,12 @@ from agents.project_spec_agent import (
 def build_project(
     architecture
 ):
-
+    if os.path.exists(
+        "generated_code"
+    ):
+        shutil.rmtree(
+            "generated_code"
+        )
     spec = generated_project_spec(
         architecture
     )
